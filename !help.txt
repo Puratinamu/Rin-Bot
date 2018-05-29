@@ -1,0 +1,18 @@
+Commands:
+```
+!assemble [@role](, [@role]) - Messages all members in each role mentioned to join the current guild.
+!avatar [@user](, [@user]) - Messages the author the avatars of all @ mentioned users.
+!clapclap - :clap::clap:
+!clear [int num] - Deletes the past [num] messages in the channel.
+!help - Messages the author a list of commands.
+!help_file - Sends the author a text file containing a list of commands.
+!join - I join your current voicechannel.
+!leave - I disconnect from any voicechannels in your server.
+!pat - Pat me.
+!question [String query] - Replies to the channel with an answer to a yes/no question.
+!random [int low],[int high]- Replies to the channel with a random number between [low] and [high] inclusive.
+!roll [int dice]d[int size](k[h, l][int num]) - Rolls [dice] size [size] dice and returns the total sum.
+												k - [num] highest/lowest dice will be kept.
+!sound [String file] - Plays the soundfile at 
+!success - :PogChamp:
+```

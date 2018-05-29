@@ -1,0 +1,19 @@
+{
+  "name": "Rin_Bot",
+  "version": "1.0.0",
+  "description": "It's a Rin Bot!",
+  "main": "bot.js",
+  "author": "Nicholas Wong",
+  "dependencies": {
+    "bufferutil": "^3.0.4",
+    "discord.io": "github:woor/discord.io#gateway_v6",
+    "discord.js": "^11.3.2",
+    "erlpack": "github:hammerandchisel/erlpack",
+    "libsodium-wrappers": "^0.7.3",
+    "node-opus": "^0.2.7",
+    "npm": "^6.0.0",
+    "opusscript": "0.0.6",
+    "uws": "^9.148.0",
+    "winston": "^2.4.2"
+  }
+}
