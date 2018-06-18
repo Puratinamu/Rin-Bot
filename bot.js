@@ -19,7 +19,7 @@ bot.on('message', message => {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     content = message.content
-    if (content.substring(0, 1) == auth.prefix && !message.author.bot) {
+    if (content.substring(0, 1) == auth.prefix && !message.author.bot && message.member.roles) {
         var args = content.substring(1).split(' ');
         var cmd = args[0];
         // Commands
@@ -43,6 +43,8 @@ bot.on('message', message => {
                         }
                     }
                 }
+                logger.info(message.author.username + ' assembled members of ' + role.name +
+                            'to assemble in' + message.guild);
             break;
             //!avatar
             case 'avatar':
@@ -53,8 +55,10 @@ bot.on('message', message => {
                     message.channel.send('Avatars of all mentioned users were dmed to you.')
                     for (var value of users.values()) {
                        message.author.send(value.avatarURL);
+                       logger.info(message.author.username + ' requested the avatar of ' + value.username);
                     }
                 }
+
             break;
             // !clapclap
             case 'clapclap':
@@ -65,6 +69,7 @@ bot.on('message', message => {
                     msg = ':clap:Meme :clap: Review';
                 }
                 message.channel.send(msg);
+                logger.info('Clapped for ' + message.author.username);
             break;
             // !clear
             case 'clear':
@@ -75,7 +80,8 @@ bot.on('message', message => {
                 } else {
                     message.delete();
                     delete_last = parseInt(args[1]);
-                    logger.info('Deleting ' + args[1] + ' messages...');
+                    logger.info(message.author.username + ' deleted ' + args[1] + ' messages in '
+                                + message.channel.name);
                     message.channel.bulkDelete(delete_last)
                         .catch(error => message.channel.send('Something went wrong...'));
                 }
@@ -90,6 +96,7 @@ bot.on('message', message => {
                 var fs = require('fs'),
                     contents = fs.readFileSync('./!help.txt', 'utf8');
                 message.author.send(contents);
+                logger.info('Sent help to ' + message.author.username);
             break;
             // !help_file
             case 'help_file':
@@ -98,10 +105,12 @@ bot.on('message', message => {
                                       name: '!help.txt'}]
                                    })
                     .catch(console.error);
+                logger.info('Sent help file to ' + message.author.username);
             break;
             // !join
             case 'join':
                 var voiceChannel = message.member.voiceChannel;
+                logger.info(message.author.username + ' requested me to join ' + message.member.voiceChannel);
                 if (!voiceChannel || voiceChannel.type != 'voice') {
                     message.channel.send('Couldn\'t connect to your voice channel.');
                 } else {
@@ -114,6 +123,7 @@ bot.on('message', message => {
             // !leave
             case 'leave':
                 var connection = message.guild.voiceConnection;
+                logger.info('Disconnect request from ' + message.author.username);
                 if (connection) {
                     connection.disconnect();
                     logger.info('Disconnecting from ' + message.guild.name);
@@ -122,6 +132,7 @@ bot.on('message', message => {
             // !pat
             case 'pat':
                 message.channel.send('\\**pat pat*\\\*');
+                logger.info('Was patted by ' + message.author.username);
             break;
             // !question
             case 'question':
@@ -129,12 +140,16 @@ bot.on('message', message => {
                            5: 'Never in a million years', 6: 'You bet'}
                 answer_key = Math.floor(Math.random()*7)
                 message.channel.send(answers[answer_key]);
+                logger.info('Answered a question from ' + message.author.username);
             break;
             // !random
             case 'random':
                 range = args[1].split(',');
                 num = Math.floor(Math.random()*parseInt(range[1]) + parseInt(range[0]))
+                    .catch(logger.info(message.author.username + 'input incorrect params for !random'))
                 message.channel.send(String(num));
+                logger.info(message.author.username + ' rolled ' + String(num) + 'using !random');
+
             break;
             // !roll
             case 'roll':
@@ -175,17 +190,22 @@ bot.on('message', message => {
                         }
                     }
                     msg = 'rolls: ' + rolltext + '\n' + 'total: ' + String(sum)
+                    logger.info(message.author.username + ' rolled ' + rolltext + ' for a total of ' + String(sum));
                 } else {
                     msg = 'No.';
+                    logger.info('Rejected large roll request from ' + message.author.username);
                 }
                 message.channel.send(msg);
+
             break;
             // !sound
             case 'sound':
                 var connection = message.guild.voiceConnection;
+                var playing = false;
                 if (!connection) {
                     message.channel.send('Use !join to let me join a voicechannel first.');
-                } else {
+                } else if (!playing) {
+                    playing = true;
                     var name = '';
                     for (var i = 1; i < args.length; i++) {
                         name += (args[i] + ' ');
@@ -208,6 +228,7 @@ bot.on('message', message => {
                                         m.channel.send('Sound paused.');
                                         dispatcher.pause();
                                         paused = true;
+                                        logger.info(m.author.username + ' paused sound');
                                     }
                                 break;
                                 case 'resume':
@@ -215,12 +236,15 @@ bot.on('message', message => {
                                         m.channel.send('Sound resumed.');
                                         dispatcher.resume();
                                         paused = false;
+                                        logger.info(m.author.username + ' resumed sound');
                                     }
                                 break;
                                 case 'stop':
                                     if (message.guild.voiceConnection.speaking) {
                                         m.channel.send('Stopping sound.');
                                         dispatcher.end();
+                                        playing = false;
+                                        logger.info(m.author.username + ' stopped sound');
                                     }
                                 break;
                             }
@@ -246,12 +270,14 @@ bot.on('message', message => {
             case 'volume':
                 if (args[1] > 100) {
                     message.channel.send('Volume level exceeds limit.');
+                    logger.info('Rejected high volume request from ' + message.author.username);
                 } else {
                     try {
                         message.guild.voiceConnection.dispatcher.setVolume(args[1]/100);
                         message.channel.send('Volume level changed to ' + args[1] + '% of input.');
+                        logger.info(message.author.username + 'changed volume to ' + args[1] + '% of input');
                     } catch(err) {
-                        logger.info(err);
+                        logger.info(message.author.username + 'triggered ' + '\n' + err);
                         message.channel.send('Not playing anything right now...');
                     }
                 }
