@@ -35,7 +35,11 @@ bot.on('message', message => {
                 command.execute(args, message, logger);
                 delete require.cache[command];
             } catch (e) {
-                logger.error(e);
+                if (e.message.startsWith('Cannot find module')) {
+                    logger.info("Invalid command " + cmd + " from " + message.author.username);
+                } else {
+                    logger.error(e);
+                }
             }
         }
      }
