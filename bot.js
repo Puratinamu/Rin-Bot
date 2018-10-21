@@ -27,7 +27,10 @@ bot.on('message', message => {
     if (content.substring(0, 1) === config.prefix && !message.author.bot) {
         let args = content.substring(1).split(' ');
         let cmd = args[0];
-        if (cmd === 'destroy') bot.destroy();
+        if (cmd === 'destroy' && message.author.id === auth.owner_id) {
+            logger.info('Owner shutting down bot');
+            bot.destroy();
+        }
         else {
             // Load, execute, and unload the command module
             try {
@@ -36,7 +39,7 @@ bot.on('message', message => {
                 delete require.cache[command];
             } catch (e) {
                 if (e.message.startsWith('Cannot find module')) {
-                    logger.info("Invalid command " + cmd + " from " + message.author.username);
+                    logger.info('Invalid command ' + cmd + ' from ' + message.author.username);
                 } else {
                     logger.error(e);
                 }
