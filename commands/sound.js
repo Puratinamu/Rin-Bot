@@ -1,4 +1,4 @@
-const paths = require('../paths.json');
+const config = require('../config.json');
 
 module.exports = {
     execute: function (args, message, logger) {
@@ -14,7 +14,7 @@ module.exports = {
                 name += (args[i] + ' ');
             }
             name = name.substring(0, name.length-1);
-            let dispatcher = connection.playFile(paths.sounds_path + name.toLowerCase() + '.mp3', {volume: 0.5});
+            let dispatcher = connection.playFile(config.paths.sounds_path + name.toLowerCase() + '.mp3', {volume: 0.5});
             dispatcher.setBitrate('auto');
             dispatcher.on('speaking', speaking => {
                 if (speaking) message.channel.send('Now playing ' + name + '.mp3')
@@ -23,7 +23,7 @@ module.exports = {
             let collector = message.channel.createCollector(m => m);
             let paused = false;
             collector.on('collect', m => {
-                if (m.content.startsWith(auth.prefix) && !m.author.bot) {
+                if (m.content.startsWith(config.prefix) && !m.author.bot) {
                     let sound_args = m.content.substring(1).split(' ');
                     let sound_cmd = sound_args[0];
                     switch (sound_cmd) {

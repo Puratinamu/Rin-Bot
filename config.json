@@ -1,0 +1,7 @@
+{
+  "paths": {
+    "sounds_path": "./sounds/",
+    "commands_path": "./commands/"
+  },
+  "prefix": "!"
+}
