@@ -14,7 +14,7 @@ module.exports = {
                 song_name += (args[i] + ' ');
             }
             song_name = song_name.substring(0, song_name.length-1);
-            logger.info(message.author.username + ' tried to play ' + song_name + ' in ' + message.voiceChannel.name);
+            logger.info(message.author.username + ' tried to play ' + song_name + ' in ' + message.channel.name);
             let dispatcher = connection.playFile(config.paths.sounds_path + song_name.toLowerCase() + '.mp3', {volume: 0.5});
             dispatcher.setBitrate('auto');
             dispatcher.on('speaking', speaking => {
@@ -23,7 +23,7 @@ module.exports = {
                         .catch(error => logger.error(error));
                 }
             });
-            dispatcher.on('end', reason => logger.info('Stopped playing on ' + message.voiceChannel.name + ' because ' + reason));
+            dispatcher.on('end', reason => logger.info('Stopped playing on ' + message.channel.name + ' because ' + reason));
             let collector = message.channel.createCollector(m => m);
             let paused = false;
             collector.on('collect', m => {
