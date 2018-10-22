@@ -9,17 +9,21 @@ module.exports = {
                 .catch(error => logger.error(error));
         } else if (!playing) {
             playing = true;
-            let name = '';
+            let song_name = '';
             for (let i = 1; i < args.length; i++) {
-                name += (args[i] + ' ');
+                song_name += (args[i] + ' ');
             }
-            name = name.substring(0, name.length-1);
-            let dispatcher = connection.playFile(config.paths.sounds_path + name.toLowerCase() + '.mp3', {volume: 0.5});
+            song_name = song_name.substring(0, song_name.length-1);
+            logger.info(message.author.username + ' tried to play ' + song_name + ' in ' + message.voiceChannel.name);
+            let dispatcher = connection.playFile(config.paths.sounds_path + song_name.toLowerCase() + '.mp3', {volume: 0.5});
             dispatcher.setBitrate('auto');
             dispatcher.on('speaking', speaking => {
-                if (speaking) message.channel.send('Now playing ' + name + '.mp3')
-                    .catch(error => logger.error(error));
+                if (speaking) {
+                    message.channel.send('Now playing ' + song_name + '.mp3')
+                        .catch(error => logger.error(error));
+                }
             });
+            dispatcher.on('end', reason => logger.info('Stopped playing on ' + message.voiceChannel.name + ' because ' + reason));
             let collector = message.channel.createCollector(m => m);
             let paused = false;
             collector.on('collect', m => {
@@ -28,7 +32,7 @@ module.exports = {
                     let sound_cmd = sound_args[0];
                     switch (sound_cmd) {
                         case 'pause':
-                            if (!paused && message.guild.voiceConnection.speaking) {
+                            if (playing && !paused) {
                                 m.channel.send('Sound paused.')
                                     .catch(error => logger.error(error));
                                 dispatcher.pause();
@@ -37,7 +41,7 @@ module.exports = {
                             }
                             break;
                         case 'resume':
-                            if (paused && !message.guild.voiceConnection.speaking) {
+                            if (playing && paused) {
                                 m.channel.send('Sound resumed.')
                                     .catch(error => logger.error(error));
                                 dispatcher.resume();
@@ -46,7 +50,7 @@ module.exports = {
                             }
                             break;
                         case 'stop':
-                            if (message.guild.voiceConnection.speaking) {
+                            if (playing) {
                                 m.channel.send('Stopping sound.')
                                     .catch(error => logger.error(error));
                                 dispatcher.end();
